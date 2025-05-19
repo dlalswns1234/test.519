@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>마우스 이동 효과</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #111;
+      height: 100vh;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .circle {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 255, 255, 0.7);
+      border-radius: 50%;
+      pointer-events: none;
+      mix-blend-mode: difference;
+    }
+
+    .text-bg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 10vw;
+      opacity: 0.1;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .coords {
+      position: absolute;
+      color: #0ff;
+      font-size: 14px;
+      font-weight: bold;
+      pointer-events: none;
+      mix-blend-mode: difference;
+    }
+
+    .burst-circle {
+      position: absolute;
+      border-radius: 50%;
+      animation: burst 1s ease-out forwards;
+    }
+
+    @keyframes burst {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.5);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="circle"></div>
+  <div class="coords">x: 0, y: 0</div>
+  <div class="text-bg">마우스를 움직여보세요</div>
+
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <script>
+    const circle = document.querySelector('.circle');
+    const coords = document.querySelector('.coords');
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ff6f61'];
+
+    function createBurst(x, y) {
+      for (let i = 0; i < 3; i++) {
+        const burstCircle = document.createElement('div');
+        burstCircle.className = 'burst-circle';
+        
+        // 랜덤 크기와 색상
+        const size = Math.random() * 30 + 15;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        burstCircle.style.width = `${size}px`;
+        burstCircle.style.height = `${size}px`;
+        burstCircle.style.background = color;
+        burstCircle.style.left = `${x - size/2}px`;
+        burstCircle.style.top = `${y - size/2}px`;
+        
+        document.body.appendChild(burstCircle);
+        
+        // 애니메이션 후 제거
+        setTimeout(() => burstCircle.remove(), 1000);
+      }
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      const x = e.clientX;
+      const y = e.clientY;
+
+      gsap.to(circle, {
+        x: x - 20,
+        y: y - 20,
+        duration: 0.2,
+        ease: "power2.out"
+      });
+
+      coords.textContent = `x: ${x}, y: ${y}`;
+      gsap.to(coords, {
+        x: x + 15,
+        y: y + 15,
+        duration: 0.2,
+        ease: "power2.out"
+      });
+
+      // 마우스 움직일 때마다 폭발 효과 생성
+      createBurst(x, y);
+    });
+
+    gsap.to(".text-bg", {
+      scale: 1.5,
+      duration: 4,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: true
+    });
+  </script>
+</body>
+</html>
